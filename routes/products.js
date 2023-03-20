@@ -1,4 +1,3 @@
-
 const express = require('express');
 const jwt = require('jsonwebtoken');
 const pool = require('../connection');
@@ -8,65 +7,67 @@ require('dotenv').config();
 const router = express.Router();
 
 // Routes that require authentication and authorization
-router.get('/', (req, res) => {
- pool.query('SELECT * FROM products')
-  .then(rows => {
-  res.json(rows);
-  })
-.catch(err => {
-throw err;
-});
-});
-
-router.get('/:id', (req, res) => {
-const { id } = req.params;
-const query = 'SELECT * FROM products WHERE id = ?';
-pool.query(query, [id])
-   .then(rows => {
+router.get('/', async (req, res) => {
+  try {
+    const rows = await pool.query('SELECT * FROM products ');
     res.json(rows);
-})
-.catch(err => {
-throw err;
-});
-});
-
-router.post('/', authenticateAdmin, (req, res) => {
-const { name, price, description } = req.body;
-const query = 'INSERT INTO products (name, price, description) VALUES (?, ?, ?)';
-pool.query(query, [name, price, description])
-  .then(result => {
-   res.json({ message: 'Product added successfully', productId: result.insertId });
-})
-  .catch(err => {
-  throw err;
-});
+  } catch (err) {
+    console.error(err);
+    throw err;
+  }
 });
 
-router.put('/:id', authenticateAdmin, (req, res) => {
-const { name, price, description } = req.body;
-const { id } = req.params;
-const query = 'UPDATE products SET name = ?, price = ?, description = ? WHERE id = ?';
-pool.query(query, [name, price, description, id])
-.then(result => {
-res.json({ message: `Product ${id} updated successfully` });
-})
-.catch(err => {
-throw err;
-});
+
+router.get('/:id', async (req, res) => {
+  const { id } = req.params;
+  const query = 'SELECT * FROM products WHERE id = ?';
+  try {
+    const rows = await pool.query(query, [id]);
+    res.json(rows);
+  } catch (err) {
+    console.error(err);
+    throw err;
+  }
 });
 
-router.delete('/:id', authenticateAdmin, (req, res) => {
-const { id } = req.params;
-const query = 'DELETE FROM products WHERE id = ?';
-pool.query(query, [id])
-.then(result => {
-res.json({ message:` Product ${id} deleted successfully `});
-})
-.catch(err => {
-throw err;
+router.post('/', authenticateAdmin, async (req, res) => {
+  const { name, price, description } = req.body;
+  const query = 'INSERT INTO products (name, price, description) VALUES (?, ?, ?)';
+  try {
+    const result = await pool.query(query, [name, price, description]);
+    res.json({ message: 'Product added successfully', productId: result.insertId });
+  } catch (err) {
+    console.error(err);
+    throw err;
+  }
 });
+
+router.put('/:id', authenticateAdmin, async (req, res) => {
+  const { name, price, description } = req.body;
+  const { id } = req.params;
+  const query = 'UPDATE products SET name = ?, price = ?, description = ? WHERE id = ?';
+  try {
+    const result = await pool.query(query, [name, price, description, id]);
+    res.json({ message: `Product ${id} updated successfully` });
+  } catch (err) {
+    console.error(err);
+    throw err;
+  }
+});
+
+router.delete('/:id', authenticateAdmin, async (req, res) => {
+  const { id } = req.params;
+  const query = 'DELETE FROM products WHERE id = ?';
+  try {
+    const result = await pool.query(query, [id]);
+    res.json({ message:` Product ${id} deleted successfully `});
+  } catch (err) {
+    console.error(err);
+    throw err;
+  }
 });
 
 module.exports = router;
+
 
 

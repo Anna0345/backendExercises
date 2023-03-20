@@ -2,17 +2,21 @@ const express = require('express');
 const app = express();
 const port =  3000;
 const productRoutes = require('./routes/products');
-const usersRoutes = require('./routes/users')
+const loginRoutes = require('./routes/login')
 const cartItemsRoutes = require('./routes/cart')
 const registerRoutes = require ('./routes/register')
+const usersRoutes = require ('./routes/users')
+
 
 
 
 app.use(express.json());
 app.use('/products', productRoutes);
-app.use('/login',usersRoutes);
-app.use('/users',cartItemsRoutes);
+app.use('/login',loginRoutes);
+app.use('/user',cartItemsRoutes);
 app.use('/register',registerRoutes);
+app.use('/users',usersRoutes);
+
 
 
 app.listen(port, () => {

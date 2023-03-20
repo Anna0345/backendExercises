@@ -6,7 +6,7 @@ require('dotenv').config();
 
 const router = express.Router();
 
-// Routes that require authentication and authorization
+
 router.get('/', async (req, res) => {
   try {
     const rows = await pool.query('SELECT * FROM products ');
@@ -29,6 +29,7 @@ router.get('/:id', async (req, res) => {
     throw err;
   }
 });
+// Routes that require authentication and authorization
 
 router.post('/', authenticateAdmin, async (req, res) => {
   const { name, price, description } = req.body;

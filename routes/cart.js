@@ -57,7 +57,6 @@ router.post('/:user_id/cartItems', async (req, res) => {
 });
 
 
-
 router.delete('/:user_id/cartItems/:product_id', async (req, res) => {
   const user_Id = req.params.user_id;
   const product_id = req.params.product_id;
@@ -72,11 +71,23 @@ router.delete('/:user_id/cartItems/:product_id', async (req, res) => {
       return res.status(404).json({ message: "User not found" });
     }
 
+    const productCheckSql = `
+      SELECT * FROM products
+      WHERE id = ?
+    `;
+    const [productCheckResults] = await pool.query(productCheckSql, [product_id]);
+    if (productCheckResults.length === 0) {
+      return res.status(404).json({ message: "Product not found" });
+    }
+
     const sql = `
       DELETE FROM cartItems
       WHERE user_id = ? AND product_id = ?
     `;
     const [results] = await pool.query(sql, [user_Id, product_id]);
+    if (results.affectedRows === 0) {
+      throw new Error("Cart item not found");
+    }
     console.log(`Deleted ${results.affectedRows} cart item(s)`);
     res.json({ message: 'Cart item removed successfully' });
   } catch (error) {
@@ -84,6 +95,7 @@ router.delete('/:user_id/cartItems/:product_id', async (req, res) => {
     res.status(500).json({ message: "Server Error" });
   }
 });
+
 
 
 module.exports = router;
